@@ -97,6 +97,7 @@ class Flat_Rate_Shipping_Admin
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
+		wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css');
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/flat-rate-shipping-admin.js', array('jquery'), $this->version, false);
 	}
@@ -125,11 +126,12 @@ class Flat_Rate_Shipping_Admin
 			</h3>
 			<!-- Add your form or inputs here -->
 			<form method="post" action="">
-				<label for="name">Name</label>
+				<div class="input-group"> 
+				<label class="input-group-text" for="name">Name</label>
 				<input type="text" id="name" name="name" required />
 
-				<label for="country_selector">Country</label>
-				<select name="country_selector" required>
+				<label class="input-group-text" for="country_selector">Country</label>
+				<select class="form-select" name="country_selector" required>
 					<option value="">Select Country</option>
 
 					<?php
@@ -141,9 +143,11 @@ class Flat_Rate_Shipping_Admin
 					?>
 				</select>
 
-				<label for="flat_rate_price">Flat Rate Price</label>
-				<input type="number" step="0.01" id="price" name="flat_rate_price" required /><br />
-				<input type="submit" name="custom_shipping_submit" value="Agregar Ciudad">
+				<label class="input-group-text" for="flat_rate_price">Flat Rate Price</label>
+				
+				<input class="form-control" type="number" step="0.01" id="price" name="flat_rate_price" required />
+				<input class="btn btn-primary" type="submit" name="custom_shipping_submit" value="Agregar Ciudad">
+				</div>
 			</form>
 
 			<?php
@@ -198,8 +202,9 @@ class Flat_Rate_Shipping_Admin
 
 		if (!empty($results)) {
 			echo '<form method="post" action="">';
-			echo '<label for="country_select">Select a Country:</label>';
-			echo '<select name="country" id="country_select">';
+			echo '<div class="input-group">';
+			echo '<label class="input-group-text" for="country_select">Select a Country:</label>';
+			echo '<select class="form-select" name="country" id="country_select">';
 			echo '<option value="all">All Countries</option>';
 
 			// Create an array to store cities by country
@@ -224,7 +229,8 @@ class Flat_Rate_Shipping_Admin
 			}
 
 			echo '</select>';
-			echo '<input type="submit" name="update_prices" value="Ver Ciudades">';
+			echo '<input class="btn btn-primary" type="submit" name="update_prices" value="Ver Ciudades">';
+			echo '</div>';
 			echo '</form>';
 
 			// Display cities based on the selected country
@@ -234,11 +240,11 @@ class Flat_Rate_Shipping_Admin
 				if ($selected_country !== 'all' && isset($cities_by_country[$selected_country])) {
 					echo '<div class="country-cities" data-country="' . esc_attr($selected_country) . '">';
 					foreach ($cities_by_country[$selected_country] as $city_data) {
-						echo '<p class="col-12">';
+						echo '<p class="input-group col-12">';
 						echo '<strong>' . esc_html($city_data['city']) . ':</strong> ';
-						echo '<input type="text" step="0.01" class="edit-price" value="' . esc_attr($city_data['price']) . '">';
-						echo '<button data-value="' . esc_attr($city_data['id']) . '" class="delete-city">Delete</button>';
-						echo '<button data-value="' . esc_attr($city_data['id']) . '" class="update-city">Update</button>';
+						echo '<input class="form-control" type="text" step="0.01" class="edit-price" value="' . esc_attr($city_data['price']) . '">';
+						echo '<button data-value="' . esc_attr($city_data['id']) . '" class="delete-city btn btn-danger">Delete</button>';
+						echo '<button data-value="' . esc_attr($city_data['id']) . '" class="update-city btn btn-primary">Update</button>';
 						echo '</p>';
 					}
 					echo '</div>';
