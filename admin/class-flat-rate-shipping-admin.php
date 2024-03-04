@@ -76,6 +76,8 @@ class Flat_Rate_Shipping_Admin
 		 */
 
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/flat-rate-shipping-admin.css', array(), '1.1.1', 'all');
+		wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css');
+
 	}
 
 	/**
@@ -97,9 +99,8 @@ class Flat_Rate_Shipping_Admin
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css');
-
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/flat-rate-shipping-admin.js', array('jquery'), $this->version, false);
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/flat-rate-shipping-admin.js', array('jquery'), '1.1.2', false);
+		wp_localize_script($this->plugin_name, 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')),'1.0.1',false);
 	}
 
 
@@ -126,27 +127,27 @@ class Flat_Rate_Shipping_Admin
 			</h3>
 			<!-- Add your form or inputs here -->
 			<form method="post" action="">
-				<div class="input-group"> 
-				<label class="input-group-text" for="name">Name</label>
-				<input type="text" id="name" name="name" required />
+				<div class="input-group">
+					<label class="input-group-text" for="name">Name</label>
+					<input type="text" id="name" name="name" required />
 
-				<label class="input-group-text" for="country_selector">Country</label>
-				<select class="form-select" name="country_selector" required>
-					<option value="">Select Country</option>
+					<label class="input-group-text" for="country_selector">Country</label>
+					<select class="form-select" name="country_selector" required>
+						<option value="">Select Country</option>
 
-					<?php
-					$countries = WC()->countries->get_allowed_countries();
+						<?php
+						$countries = WC()->countries->get_allowed_countries();
 
-					foreach ($countries as $code => $name) {
-						echo '<option value="' . esc_attr($code) . '">' . esc_html($name) . '</option>';
-					}
-					?>
-				</select>
+						foreach ($countries as $code => $name) {
+							echo '<option value="' . esc_attr($code) . '">' . esc_html($name) . '</option>';
+						}
+						?>
+					</select>
 
-				<label class="input-group-text" for="flat_rate_price">Flat Rate Price</label>
-				
-				<input class="form-control" type="number" step="0.01" id="price" name="flat_rate_price" required />
-				<input class="btn btn-primary" type="submit" name="custom_shipping_submit" value="Agregar Ciudad">
+					<label class="input-group-text" for="flat_rate_price">Flat Rate Price</label>
+
+					<input class="form-control" type="number" step="0.01" id="price" name="flat_rate_price" required />
+					<input class="btn btn-primary" type="submit" name="custom_shipping_submit" value="Agregar Ciudad">
 				</div>
 			</form>
 
@@ -254,5 +255,56 @@ class Flat_Rate_Shipping_Admin
 		} else {
 			echo '<p>No cities and countries found.</p>';
 		}
+	}
+
+	// Same handler function...
+	public function delete_city()
+	{
+		global $wpdb;
+
+		$id = intval($_POST['id']);
+
+		$table_name = $wpdb->prefix . 'custom_cities';
+
+		$result = $wpdb->delete($table_name, array('id' => $id));
+
+		if ($result === false) {
+			echo "Error deleting record: " . $wpdb->last_error;
+		} else {
+			echo "Record deleted successfully";
+		}
+		wp_die();
+	}
+
+	// Same handler function...
+	public function update_city()
+	{
+		global $wpdb;
+		$id = intval($_POST['id']);
+		$new_price = floatval($_POST['new_price']);
+
+		$table_name = $wpdb->prefix . 'custom_cities';
+
+		// Data to update
+		$data_to_update = array(
+			'flat_rate' => $new_price,
+		);
+
+		// Conditions for which rows to update
+		$where = array(
+			'id' => $id
+		);
+
+		$updated = $wpdb->update($table_name, $data_to_update, $where);
+
+		if ($updated === false) {
+			echo "Error updating record: " . $wpdb->last_error;
+		} elseif ($updated === 0) {
+			echo "No rows were updated.";
+		} else {
+			echo "Row updated successfully.";
+		}
+
+		wp_die();
 	}
 }
