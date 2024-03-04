@@ -35,7 +35,7 @@ class Flat_Rate_Shipping_Admin
 	/**
 	 * The version of this plugin.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
@@ -44,7 +44,7 @@ class Flat_Rate_Shipping_Admin
 	/**
 	 * Initialize the class and set its properties.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
@@ -58,7 +58,7 @@ class Flat_Rate_Shipping_Admin
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
 	public function enqueue_styles()
 	{
@@ -75,13 +75,13 @@ class Flat_Rate_Shipping_Admin
 		 * class.
 		 */
 
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/flat-rate-shipping-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/flat-rate-shipping-admin.css', array(), '1.1.1', 'all');
 	}
 
 	/**
 	 * Register the JavaScript for the admin area.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
 	public function enqueue_scripts()
 	{
@@ -109,7 +109,7 @@ class Flat_Rate_Shipping_Admin
 			'Flat Rate Shipping',
 			'manage_options',
 			// Minimum capability required to access
-			'custom-admin-section',
+			'flat-rate-shipping',
 			array($this, 'custom_admin_page_content'),
 			'dashicons-car' // Icon for the menu item (optional)
 		);
@@ -126,7 +126,7 @@ class Flat_Rate_Shipping_Admin
 			<!-- Add your form or inputs here -->
 			<form method="post" action="">
 				<label for="name">Name</label>
-				<input type="text" id="name" name="name" required /><br />
+				<input type="text" id="name" name="name" required />
 
 				<label for="country_selector">Country</label>
 				<select name="country_selector" required>
@@ -139,7 +139,7 @@ class Flat_Rate_Shipping_Admin
 						echo '<option value="' . esc_attr($code) . '">' . esc_html($name) . '</option>';
 					}
 					?>
-				</select><br />
+				</select>
 
 				<label for="flat_rate_price">Flat Rate Price</label>
 				<input type="number" step="0.01" id="price" name="flat_rate_price" required /><br />
@@ -234,7 +234,7 @@ class Flat_Rate_Shipping_Admin
 				if ($selected_country !== 'all' && isset($cities_by_country[$selected_country])) {
 					echo '<div class="country-cities" data-country="' . esc_attr($selected_country) . '">';
 					foreach ($cities_by_country[$selected_country] as $city_data) {
-						echo '<p>';
+						echo '<p class="col-12">';
 						echo '<strong>' . esc_html($city_data['city']) . ':</strong> ';
 						echo '<input type="text" step="0.01" class="edit-price" value="' . esc_attr($city_data['price']) . '">';
 						echo '<button data-value="' . esc_attr($city_data['id']) . '" class="delete-city">Delete</button>';
