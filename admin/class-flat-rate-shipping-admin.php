@@ -179,11 +179,6 @@ class Flat_Rate_Shipping_Admin
 						array('%s', '%s', '%f')
 					);
 				}
-
-				// Optionally, redirect or display a success message
-				// Example: wp_redirect('success-page.php');
-				// or
-				// echo '<div class="success-message">Form submitted successfully!</div>';
 			}
 			?>
 		</div>
@@ -249,6 +244,22 @@ class Flat_Rate_Shipping_Admin
 						echo '</p>';
 					}
 					echo '</div>';
+				}
+				else{
+					foreach ($cities_by_country as $country => $cities) {
+						echo '<div class="country-cities" data-country="' . esc_attr($country) . '">';
+						
+						foreach ($cities as $city_data) {
+							echo '<p class="input-group col-12">';
+							echo '<strong>' . esc_html($city_data['city']) . ':</strong> ';
+							echo '<input class="form-control" type="text" step="0.01" class="edit-price" value="' . esc_attr($city_data['price']) . '">';
+							echo '<button data-value="' . esc_attr($city_data['id']) . '" class="delete-city btn btn-danger">Delete</button>';
+							echo '<button data-value="' . esc_attr($city_data['id']) . '" class="update-city btn btn-primary">Update</button>';
+							echo '</p>';
+						}
+						
+						echo '</div>';
+					}
 				}
 			}
 			echo '</div>';
