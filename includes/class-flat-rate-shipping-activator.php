@@ -31,26 +31,22 @@ class Flat_Rate_Shipping_Activator {
 	 */
 	public static function activate() {
 		global $wpdb;
-
-		$table_name = $wpdb->prefix . 'custom_cities';
-		
+		$table_name = $wpdb->prefix . 'custom_flat_rate_shippings';
 		// Check if the table already exists
-		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-		
+		$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+
+		if (!$table_exists) {
 			$sql = "CREATE TABLE $table_name (
 				id INT NOT NULL AUTO_INCREMENT,
-				cityId VARCHAR(255) NOT NULL,
+				cityId INT NOT NULL,
+				FOREIGN KEY (cityId) REFERENCES wp_custom_cities(id),
 				countryCode VARCHAR(4) NOT NULL,
 				stateCode VARCHAR(4) NOT NULL,
 				price DECIMAL(10,2) NOT NULL,
-				PRIMARY KEY (id),
-				FOREIGN KEY (stateCode) REFERENCES states(stateCode),
-				FOREIGN KEY (cityId) REFERENCES cities(cityId)
+				PRIMARY KEY (id)
 			)";
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql);
 		}
-		
 	}
-
 }
