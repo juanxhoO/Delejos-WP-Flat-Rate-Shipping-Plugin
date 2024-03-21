@@ -77,7 +77,6 @@ class Flat_Rate_Shipping_Admin
 
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/flat-rate-shipping-admin.css', array(), '1.1.1', 'all');
 		wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css');
-
 	}
 
 	/**
@@ -100,7 +99,7 @@ class Flat_Rate_Shipping_Admin
 		 * class.
 		 */
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/flat-rate-shipping-admin.js', array('jquery'), '1.1.2', false);
-		wp_localize_script($this->plugin_name, 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')),'1.0.1',false);
+		wp_localize_script($this->plugin_name, 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')), '1.0.1', false);
 	}
 
 
@@ -154,29 +153,42 @@ class Flat_Rate_Shipping_Admin
 			<?php
 			if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custom_shipping_submit'])) {
 				global $wpdb;
-				$table_name = $wpdb->prefix . 'custom_cities';
-
+				$cities_table = $wpdb->prefix . 'custom_cities';
+				$custom_rates_table =  $wpdb->prefix . 'custom_flat_rates';
 				// Retrieve form data and sanitize
 				$name = sanitize_text_field($_POST['name']);
 				$country_code = sanitize_text_field($_POST['country_selector']);
 				$flat_rate_price = floatval($_POST['flat_rate_price']); // Convert to float
 
 				//Check if The City is already in the table
-				$exists = $wpdb->get_var($wpdb->prepare("SELECT city_name FROM $table_name WHERE city_name = %s", $name));
+				$exists = $wpdb->get_var($wpdb->prepare("SELECT cityName FROM $cities_table WHERE cityName = %s", $name));
 				echo ($exists);
 				if ($exists === $name) {
 					// The city already exists, handle this case (e.g., show an error message).
 					echo '<div class="error-message">City already exists!</div>';
 				} else {
-					// Insert data into the custom table
+					// Insert data into the cities table
 					$wpdb->insert(
-						$table_name,
+						$cities_table,
 						array(
-							'city_name' => $name,
-							'country_code' => $country_code,
-							'flat_rate' => $flat_rate_price,
+							'cityName' => $name,
+							'countryCode' => $country_code,
 						),
-						array('%s', '%s', '%f')
+						array('%s', '%s')
+					);
+
+					// Get the ID of the newly inserted row in the cities table
+					$city_id = $wpdb->insert_id;
+
+					// Insert data into the custom rates table
+					$wpdb->insert(
+						$custom_rates_table,
+						array(
+							'cityId' => $city_id,
+							'countryCode' => $country_code,
+							'price' => $flat_rate_price,
+						),
+						array('%d', '%s', '%f') // Assuming 'cityId' is an integer
 					);
 				}
 			}
@@ -191,10 +203,11 @@ class Flat_Rate_Shipping_Admin
 	{
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'custom_cities';
+		$table_name = $wpdb->prefix . 'custom_flat_rates';
+		$cities_table = $wpdb->prefix . 'custom_cities';
 
 		// Retrieve cities and countries from the custom table
-		$results = $wpdb->get_results("SELECT city_name, country_code, flat_rate, ID FROM $table_name", ARRAY_A);
+		$results = $wpdb->get_results("SELECT countryCode, price, cityId, ID FROM $table_name", ARRAY_A);
 
 		if (!empty($results)) {
 			echo '<form method="post" action="">';
@@ -207,18 +220,23 @@ class Flat_Rate_Shipping_Admin
 			$cities_by_country = array();
 
 			foreach ($results as $row) {
-				$city = esc_html($row['city_name']);
-				$country = esc_html($row['country_code']);
-				$price = number_format(doubleval($row['flat_rate']), 2); // 2 specifies the number of decimal places			echo($price);
+				$city_id = intval($row['cityId']);
+				$country = esc_html($row['countryCode']);
+				$price = number_format(doubleval($row['price']), 2); // 2 specifies the number of decimal places
 				$id = intval($row['ID']);
+
+				// Fetch cityName corresponding to cityId
+				$city_name = $wpdb->get_var($wpdb->prepare("SELECT cityName FROM $cities_table WHERE id = %d", $city_id));
+				$city_name = $city_name !== null ? esc_html($city_name) : 'City not found';
+
 				// Store cities in an array by country
 				if (!isset($cities_by_country[$country])) {
 					$cities_by_country[$country] = array();
 				}
-				$cities_by_country[$country][] = array('city' => $city, 'price' => $price, 'id' => $id);
+
+				$cities_by_country[$country][] = array('city' => $city_name, 'price' => $price, 'id' => $id);
 			}
 
-			// Generate the select options for countries
 			$countries = WC()->countries->get_countries();
 			foreach ($cities_by_country as $country_code => $cities) {
 				echo '<option value="' . esc_attr($country_code) . '">' . esc_html($countries[$country_code]) . '</option>';
@@ -244,11 +262,10 @@ class Flat_Rate_Shipping_Admin
 						echo '</p>';
 					}
 					echo '</div>';
-				}
-				else{
+				} else {
 					foreach ($cities_by_country as $country => $cities) {
 						echo '<div class="country-cities" data-country="' . esc_attr($country) . '">';
-						
+
 						foreach ($cities as $city_data) {
 							echo '<p class="input-group col-12">';
 							echo '<strong>' . esc_html($city_data['city']) . ':</strong> ';
@@ -257,7 +274,7 @@ class Flat_Rate_Shipping_Admin
 							echo '<button data-value="' . esc_attr($city_data['id']) . '" class="update-city btn btn-primary">Update</button>';
 							echo '</p>';
 						}
-						
+
 						echo '</div>';
 					}
 				}
