@@ -32,27 +32,52 @@ class Flat_Rate_Shipping_Activator
 	 */
 	public static function activate()
 	{
-		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'custom_flat_rates';
-		$cities_table = $wpdb->prefix . 'custom_cities';
-		$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
-		// Check if the table already exists
+		create_custom_cities_table();
+		create_custom_flat_rates_table();
+		
+		//Creating Cities SQL Table 
+		function create_custom_cities_table()
+		{
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'custom_cities';
 
-		if (!$table_exists) {
-			$sql = "CREATE TABLE $table_name (
-				id INT NOT NULL AUTO_INCREMENT,
-				cityId INT NOT NULL,
-				countryCode VARCHAR(4) NOT NULL,
-				stateCode VARCHAR(4) NOT NULL,
-				price DECIMAL(10,2) NOT NULL,
-				PRIMARY KEY (id),
-				FOREIGN KEY (cityId) REFERENCES $cities_table (id)
-			)";
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-			dbDelta($sql);
+			$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+			if (!$table_exists) {
+				echo ("dsdsd");
+				// Check if the table already exists
+				$sql = "CREATE TABLE $table_name (
+					id INT NOT NULL AUTO_INCREMENT,
+					stateCode VARCHAR(4) NOT NULL,
+					countryCode VARCHAR(4) NOT NULL,
+					cityName VARCHAR(255) NOT NULL,
+					PRIMARY KEY (id)
+				)";
+				require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+				dbDelta($sql);
+			}
 		}
-		// Hay que crear una logica para ver si la tabla de ciudades ha sido creada primero
 
+		function create_custom_flat_rates_table()
+		{
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'custom_flat_rates';
+
+			$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+			if (!$table_exists) {
+				// Check if the table already exists
+				$sql = "CREATE TABLE $table_name (
+					id INT NOT NULL AUTO_INCREMENT,
+					cityId INT NOT NULL,
+					countryCode VARCHAR(4) NOT NULL,
+					stateCode VARCHAR(4) NOT NULL,
+					price DECIMAL(10, 2) NOT NULL,
+					PRIMARY KEY (id),
+					FOREIGN KEY (cityId) REFERENCES $table_name (id)
+				)";
+				require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+				dbDelta($sql);
+			}
+		}
 	}
 }
