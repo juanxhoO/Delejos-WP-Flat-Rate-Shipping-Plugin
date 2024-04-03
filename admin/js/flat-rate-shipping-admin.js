@@ -50,8 +50,9 @@
 			};
 			// // We can also pass the url value separately from ajaxurl for front end AJAX implementations
 			jQuery.post(ajax_object.ajax_url, data, function (response) {
-				alert('Got this from the server: ' + response);
-				location.reload();
+				console.log(response)
+
+				//location.reload();
 			});
 		}
 
@@ -67,7 +68,7 @@
 			};
 			// We can also pass the url value separately from ajaxurl for front end AJAX implementations
 			jQuery.post(ajax_object.ajax_url, data, function (response) {
-				alert('Got this from the server: ' + response);
+				console.log(response)
 				location.reload();
 			});
 		}

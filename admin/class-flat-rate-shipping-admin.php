@@ -184,7 +184,6 @@ class Flat_Rate_Shipping_Admin
 					// Insert data into the custom rates table
 					$wpdb->insert(
 						$custom_rates_table,
-						$custom_rates_table,
 						array(
 							'cityId' => $city_id,
 							'countryCode' => $country_code,
@@ -295,16 +294,19 @@ class Flat_Rate_Shipping_Admin
 	{
 		global $wpdb;
 
-		$id = intval($_POST['id']);
-
-		$table_name = $wpdb->prefix . 'custom_cities';
+		$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+		$table_name = $wpdb->prefix . 'custom_flat_rates';
+		// Check if required data is provided
+		if ($id === 0) {
+			wp_send_json_error('Invalid data provided.');
+		}
 
 		$result = $wpdb->delete($table_name, array('id' => $id));
 
 		if ($result === false) {
-			echo "Error deleting record: " . $wpdb->last_error;
+			wp_send_json_error("Error deleting record: " . $wpdb->last_error);
 		} else {
-			echo "Record deleted successfully";
+			wp_send_json_success("Row updated successfully.", 200);
 		}
 		wp_die();
 	}
@@ -313,31 +315,30 @@ class Flat_Rate_Shipping_Admin
 	public function update_city()
 	{
 		global $wpdb;
-		$id = intval($_POST['id']);
-		$new_price = floatval($_POST['new_price']);
+		$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+		$new_price = isset($_POST['new_price']) ? floatval($_POST['new_price']) : 0;
+		$table_name = $wpdb->prefix . 'custom_flat_rates';
 
-		$table_name = $wpdb->prefix . 'custom_cities';
-
+		// Check if required data is provided
+		if ($id === 0 || $new_price <= 0) {
+			wp_send_json_error('Invalid data provided.');
+		}
 		// Data to update
 		$data_to_update = array(
-			'flat_rate' => $new_price,
+			'price' => $new_price,
 		);
-
 		// Conditions for which rows to update
 		$where = array(
 			'id' => $id
 		);
-
 		$updated = $wpdb->update($table_name, $data_to_update, $where);
-
-		if ($updated === false) {
-			echo "Error updating record: " . $wpdb->last_error;
+		if ($updated === false) { 
+			wp_send_json_error("Error updating record: " . $wpdb->last_error);
 		} elseif ($updated === 0) {
-			echo "No rows were updated.";
+			wp_send_json_error("No rows were updated.", 404);
 		} else {
-			echo "Row updated successfully.";
+			wp_send_json_success("Row updated successfully.", 200);
 		}
-
 		wp_die();
 	}
 }
