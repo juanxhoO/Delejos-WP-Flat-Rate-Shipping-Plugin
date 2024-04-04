@@ -259,7 +259,7 @@ class Flat_Rate_Shipping_Admin
 					echo '<div class="country-cities" data-country="' . esc_attr($selected_country) . '">';
 					foreach ($cities_by_country[$selected_country] as $city_data) {
 						echo '<p class="input-group col-12">';
-						echo '<strong>' . esc_html($city_data['city']) . ':</strong> ';
+						echo '<input' . esc_html($city_data['city']) . '/> ';
 						echo '<input class="form-control" type="text" step="0.01" class="edit-price" value="' . esc_attr($city_data['price']) . '">';
 						echo '<button data-value="' . esc_attr($city_data['id']) . '" class="delete-city btn btn-danger">Delete</button>';
 						echo '<button data-value="' . esc_attr($city_data['id']) . '" class="update-city btn btn-primary">Update</button>';
@@ -269,10 +269,10 @@ class Flat_Rate_Shipping_Admin
 				} else {
 					foreach ($cities_by_country as $country => $cities) {
 						echo '<div class="country-cities" data-country="' . esc_attr($country) . '">';
-
 						foreach ($cities as $city_data) {
 							echo '<p class="input-group col-12">';
-							echo '<strong>' . esc_html($city_data['city']) . ':</strong> ';
+							echo '<input class="form-control" value="' . esc_html($city_data['city']) .'"/> ';
+							echo '<input class="form-control" value="state"/> ';
 							echo '<input class="form-control" type="text" step="0.01" class="edit-price" value="' . esc_attr($city_data['price']) . '">';
 							echo '<button data-value="' . esc_attr($city_data['id']) . '" class="delete-city btn btn-danger">Delete</button>';
 							echo '<button data-value="' . esc_attr($city_data['id']) . '" class="update-city btn btn-primary">Update</button>';

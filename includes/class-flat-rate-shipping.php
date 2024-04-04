@@ -172,11 +172,10 @@ class Flat_Rate_Shipping
 	 */
 	private function define_public_hooks()
 	{
-
 		$plugin_public = new Flat_Rate_Shipping_Public($this->get_plugin_name(), $this->get_version());
-
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+		$this->loader->add_filter('woocommerce_package_rates', $plugin_public, 'custom_shipping_rates',10,2);
 	}
 
 	/**

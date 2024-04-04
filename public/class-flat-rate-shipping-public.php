@@ -20,7 +20,8 @@
  * @subpackage Flat_Rate_Shipping/public
  * @author     Juan Granja <ggjuanb@hotmail.com>
  */
-class Flat_Rate_Shipping_Public {
+class Flat_Rate_Shipping_Public
+{
 
 	/**
 	 * The ID of this plugin.
@@ -47,11 +48,11 @@ class Flat_Rate_Shipping_Public {
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct($plugin_name, $version)
+	{
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -59,7 +60,8 @@ class Flat_Rate_Shipping_Public {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles() {
+	public function enqueue_styles()
+	{
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -73,8 +75,7 @@ class Flat_Rate_Shipping_Public {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/flat-rate-shipping-public.css', array(), '1.1.1', 'all' );
-
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/flat-rate-shipping-public.css', array(), '1.1.1', 'all');
 	}
 
 	/**
@@ -82,7 +83,8 @@ class Flat_Rate_Shipping_Public {
 	 *
 	 * @since    1.0.1
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_scripts()
+	{
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -96,8 +98,31 @@ class Flat_Rate_Shipping_Public {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/flat-rate-shipping-public.js', array( 'jquery' ),'1.1.1', false );
-
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/flat-rate-shipping-public.js', array('jquery'), '1.1.1', false);
 	}
 
+
+	public function custom_shipping_rates($rates, $package)
+	{
+		echo ("dsdsd");
+		// Get the shipping city
+		$shipping_city = 'City1';
+
+		// Define your custom shipping rates based on cities
+		$custom_rates = array(
+			'City1' => 5.00,
+			'City2' => 7.00,
+			// Add more cities and corresponding rates as needed
+		);
+
+		// Check if the shipping city exists in the custom rates array
+		if (array_key_exists($shipping_city, $custom_rates)) {
+			// Adjust the shipping rate for the matching city
+			foreach ($rates as $rate_key => $rate) {
+				$rates[$rate_key]->cost = $custom_rates[$shipping_city];
+			}
+		}
+
+		return $rates;
+	}
 }
