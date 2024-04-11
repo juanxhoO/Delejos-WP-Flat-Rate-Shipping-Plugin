@@ -99,30 +99,45 @@ class Flat_Rate_Shipping_Public
 		 */
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/flat-rate-shipping-public.js', array('jquery'), '1.1.1', false);
+		wp_localize_script($this->plugin_name, 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')), '1.0.1', false);
+
+		if (is_cart() || is_checkout()) {
+			// This is the checkout page
+			wp_enqueue_script($this->plugin_name . 'checkout', plugin_dir_url(__FILE__) . 'js/checkout-shipping-updater.js', array('jquery'), '1.1.1', false);
+		}
 	}
 
 
-	public function custom_shipping_rates($rates, $package)
+	public function update_shipping_rate($rates)
 	{
-		echo ("dsdsd");
-		// Get the shipping city
-		$shipping_city = 'City1';
-
-		// Define your custom shipping rates based on cities
-		$custom_rates = array(
-			'City1' => 5.00,
-			'City2' => 7.00,
-			// Add more cities and corresponding rates as needed
-		);
-
-		// Check if the shipping city exists in the custom rates array
-		if (array_key_exists($shipping_city, $custom_rates)) {
-			// Adjust the shipping rate for the matching city
-			foreach ($rates as $rate_key => $rate) {
-				$rates[$rate_key]->cost = $custom_rates[$shipping_city];
-			}
+		foreach ($rates as $rate) {
+			echo ($rate);
+			error_log(print_r($rates, true));
+			$cost = $rate->cost;
+			$rate->cost = 15;
 		}
-
+		wp_send_json_success("Row updated successfully.", 200);
 		return $rates;
 	}
+
+	public function get_cities(){
+		wp_send_json_success("Row updated successfully.", 200);
+	}
+
+
+	function change_flat_rate_cost($rates, $package) {
+		// Output rates on the checkout page
+		echo '<pre>';
+		print_r($rates);
+		echo '</pre>';
+	
+		// foreach ($rates as $key => $rate) {
+		// 	if ('flat_rate' === $rate->method_id) {
+		// 		$rates[$key]->cost = 11;
+		// 	}
+		// }
+	
+		//return $rates;
+	}
+	
 }

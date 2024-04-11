@@ -100,7 +100,6 @@ class Flat_Rate_Shipping_Admin
 		 */
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/flat-rate-shipping-admin.js', array('jquery'), '1.1.2', false);
 		wp_localize_script($this->plugin_name, 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')), '1.0.1', false);
-		wp_localize_script($this->plugin_name, 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')), '1.0.1', false);
 	}
 
 
@@ -342,3 +341,6 @@ class Flat_Rate_Shipping_Admin
 		wp_die();
 	}
 }
+
+
+
